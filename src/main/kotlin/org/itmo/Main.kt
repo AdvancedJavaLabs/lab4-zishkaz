@@ -61,12 +61,12 @@ object Main {
 
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
-            mapperClass = RevenueSorter.RecordHandler::class.java
+            mapperClass = Sorter.RecordHandler::class.java
 
             mapOutputKeyClass = SalesRecord::class.java
             mapOutputValueClass = Text::class.java
 
-            reducerClass = RevenueSorter.RevenueReducer::class.java
+            reducerClass = Sorter.RevenueReducer::class.java
 
             outputKeyClass = SalesRecord::class.java
             outputValueClass = Text::class.java

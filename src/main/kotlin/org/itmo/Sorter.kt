@@ -5,12 +5,12 @@ import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.mapreduce.Reducer
 
-class RevenueSorter {
+class Sorter {
 
     class RecordHandler : Mapper<Any, Text, SalesRecord, Text>() {
 
         private val record = SalesRecord()
-        private val empty = Text()
+        private val text = Text()
 
         override fun map(key: Any, value: Text, context: Context) {
             val rec = value.toString().split(",").map { it.trim() }
@@ -22,7 +22,7 @@ class RevenueSorter {
             record.category.set(category)
             record.quantity.set(quantity)
             record.revenue.set(revenue)
-            context.write(record, empty)
+            context.write(record, text)
         }
     }
 
