@@ -33,7 +33,7 @@ class LineProcessor : Mapper<Any, Text, Text, DataRecord>() {
 
 class DataAggregator : Reducer<Text, DataRecord, Text, DataRecord>() {
 
-    private val aggregatedKey = DataRecord()
+    private val aggregated = DataRecord()
 
     override fun reduce(categoryKey: Text, records: Iterable<DataRecord>, context: Context) {
         val totalQuantity = AtomicLong(0)
@@ -44,13 +44,12 @@ class DataAggregator : Reducer<Text, DataRecord, Text, DataRecord>() {
             totalRevenue.addAndGet(record.totalRevenue.get())
         }
 
-        aggregatedKey.apply {
+        aggregated.apply {
             this.category.set(categoryKey)
             this.totalQuantity.set(totalQuantity.get())
             this.totalRevenue.set(totalRevenue.get())
         }
 
-        context.write(categoryKey, aggregatedKey)
+        context.write(categoryKey, aggregated)
     }
 }
-
