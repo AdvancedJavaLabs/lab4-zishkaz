@@ -18,6 +18,8 @@ object Main {
 
     const val inputPath = "data"
     const val outputPath = "output"
+    const val datablock = 256 * 1024
+    const val nodesCount = 8
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -39,6 +41,7 @@ object Main {
     private fun setupReductionJob(inputPath: Path, outputPath: Path): Job {
         val configuration = Configuration().apply {
             set(TextOutputFormat.SEPARATOR, ",")
+            set(FileInputFormat.SPLIT_MAXSIZE, datablock.toString())
         }
 
         val fs = FileSystem.get(configuration)
@@ -50,6 +53,7 @@ object Main {
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
             mapperClass = LineProcessor::class.java
+            numReduceTasks = nodesCount
             mapOutputKeyClass = Text::class.java
             mapOutputValueClass = DataRecord::class.java
             reducerClass = DataAggregator::class.java
@@ -64,7 +68,9 @@ object Main {
     }
 
     private fun setupSortingJob(inputPath: Path, outputPath: Path): Job {
-        val configuration = Configuration()
+        val configuration = Configuration().apply {
+            set(FileInputFormat.SPLIT_MAXSIZE, datablock.toString())
+        }
 
         val fs = FileSystem.get(configuration)
 
