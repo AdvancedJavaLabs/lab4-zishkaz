@@ -1,15 +1,16 @@
 package org.itmo
 
+import kotlin.system.exitProcess
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
+import org.apache.hadoop.io.DoubleWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat
 import org.apache.log4j.Logger
-import kotlin.system.exitProcess
-import org.apache.hadoop.io.DoubleWritable
 
 private val logger = Logger.getLogger(Main::class.java)
 
@@ -40,6 +41,12 @@ object Main {
             set(TextOutputFormat.SEPARATOR, ",")
         }
 
+        val fs = FileSystem.get(configuration)
+
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true)
+        }
+
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
             mapperClass = LineProcessor::class.java
@@ -58,6 +65,12 @@ object Main {
 
     private fun setupSortingJob(inputPath: Path, outputPath: Path): Job {
         val configuration = Configuration()
+
+        val fs = FileSystem.get(configuration)
+
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true)
+        }
 
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
