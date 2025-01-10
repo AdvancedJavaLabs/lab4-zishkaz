@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat
 import org.apache.log4j.Logger
 import kotlin.system.exitProcess
+import org.apache.hadoop.io.DoubleWritable
 
 private val logger = Logger.getLogger(Main::class.java)
 
@@ -61,10 +62,10 @@ object Main {
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
             mapperClass = Sorter.RecordHandler::class.java
-            mapOutputKeyClass = SalesRecord::class.java
-            mapOutputValueClass = Text::class.java
+            mapOutputKeyClass = DoubleWritable::class.java
+            mapOutputValueClass = SalesRecord::class.java
             reducerClass = Sorter.RevenueReducer::class.java
-            outputKeyClass = SalesRecord::class.java
+            outputKeyClass = Text::class.java
             outputValueClass = Text::class.java
 
             FileInputFormat.addInputPath(this, inputPath)
