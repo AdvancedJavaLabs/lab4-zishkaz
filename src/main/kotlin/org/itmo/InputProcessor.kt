@@ -10,24 +10,29 @@ import org.apache.hadoop.mapreduce.Reducer
 
 class LineProcessor : Mapper<Any, Text, Text, DataRecord>() {
 
+    private val categoryKey = Text()
     private val dataRecord = DataRecord()
 
     override fun map(key: Any, value: Text, context: Context) {
         val record = value.toString().split(",").map { it.trim() }
 
-        if (record.size < 5) return
+        if (record.size != 5 && record[0] == "transaction_id") return
 
         val category = record[2]
         val price = record[3].toDoubleOrNull() ?: return
         val quantity = record[4].toLongOrNull() ?: return
 
+        categoryKey.set(category)
+
         dataRecord.apply {
             this.category.set(category)
             this.totalQuantity.set(quantity)
-            this.totalRevenue.set(price)
+            this.totalRevenue.set(price * quantity)
         }
 
-        context.write(Text(category), dataRecord)
+        println(dataRecord)
+
+        context.write(categoryKey, dataRecord)
     }
 }
 

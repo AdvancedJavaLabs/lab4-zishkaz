@@ -8,6 +8,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat
 import org.apache.log4j.Logger
+import kotlin.system.exitProcess
 
 private val logger = Logger.getLogger(Main::class.java)
 
@@ -19,16 +20,17 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         val intermediateOutput = Path("tmp")
+
         val reductionJob = setupReductionJob(Path(inputPath), intermediateOutput)
         if (!reductionJob.waitForCompletion(false)) {
-            logger.info { "Reduction job failed!" }
-            return
+            logger.info("Reduction job failed!")
+            exitProcess(1)
         }
 
         val sortingJob = setupSortingJob(intermediateOutput, Path(outputPath))
         if (!sortingJob.waitForCompletion(false)) {
-            logger.info { "Sorting job failed!" }
-            return
+            logger.info("Sorting job failed!")
+            exitProcess(1)
         }
     }
 
@@ -40,12 +42,9 @@ object Main {
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
             mapperClass = LineProcessor::class.java
-
             mapOutputKeyClass = Text::class.java
             mapOutputValueClass = DataRecord::class.java
-
             reducerClass = DataAggregator::class.java
-
             outputKeyClass = Text::class.java
             outputValueClass = DataRecord::class.java
 
@@ -62,12 +61,9 @@ object Main {
         return Job.getInstance(configuration).apply {
             setJarByClass(Main::class.java)
             mapperClass = Sorter.RecordHandler::class.java
-
             mapOutputKeyClass = SalesRecord::class.java
             mapOutputValueClass = Text::class.java
-
             reducerClass = Sorter.RevenueReducer::class.java
-
             outputKeyClass = SalesRecord::class.java
             outputValueClass = Text::class.java
 
